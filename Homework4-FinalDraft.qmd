@@ -53,5 +53,118 @@ The missing data is very relevant to the hypotheses, because we are evaluating t
 Make a scatter plot for reference:
 
 ```{r}
-
+ggplot(data = trout_perch_data, aes(x = length, y = weight))+ #create a plot based on the trout_perch_data dataset, with the x variable being the fish lenght, and the y variable being the fish weight
+  geom_point() #Establishes the type of plot as a scatter plot
 ```
+
+The scatter plot seems to indicate a relatively strong relationship between fish length and fish weight. Further analysis will be needed to check that this assumption holds true.
+
+### #4: Checking Assumptions of Test with Diagnostic Plots
+
+```{r}
+modeltrout <- lm(weight ~ length, data = trout_perch_data) 
+#creates a linear regression model using the Trout Perch Dataset. Establishes the potential dependent variable as weight and the potential intependent variable as length
+
+par(mfrow = c(2, 2)) #Organizes the plots in a 2x2 grid for easier visualization
+plot(modeltrout) #Plots the linear regression model that was just created
+```
+
+### #5: Analysis of Diagnostic Plots:
+
+-   Residuals vs. Fitted:
+
+-   Q-Q Residuals:
+
+-   Scale-Location:
+
+-   Residuals vs. Leverage:
+
+### #6 - #7: Results of Summary(), ANOVA Table, and Summarized ANOVA Table
+
+```{r}
+model_summary <- summary(modeltrout) #Stores summary as an object
+model_squares <- anova(modeltrout) #Stores ANOVA table as an object
+
+model_summary
+```
+
+```{r}
+model_squares
+```
+
+```{r}
+#Summarize the ANOVA table 
+
+model_squares_table <- tidy(model_squares) %>% 
+  # round sum of squares and mean squares columns
+  mutate(across(sumsq:meansq, ~ round(.x, digits = 3))) %>% 
+  # round the F-statistic to 1 digit
+  mutate(statistic = round(statistic, digits = 1)) %>% 
+  # replace the p value with < 0.001 so as to not appear in scientific notation
+  mutate(p.value = case_when(
+    p.value < 0.001 ~ "< 0.001"
+  )) %>% 
+  # rename the length (independent) variable
+  mutate(term = case_when(
+    term == "length" ~ "Fish Length",
+    TRUE ~ term
+  )) %>% 
+  # make data frame a flextable object
+  flextable() %>% 
+  # change the header labels to be more explanatory
+  set_header_labels(df = "Degrees of Freedom", 
+                    sumsq = "Sum of squares",
+                    meansq = "Mean squares",
+                    statistic = "F-statistic",
+                    p.value = "p-value")
+
+model_squares_table
+```
+
+### #8: Explaining ANOVA Table Results
+
+The ANOVA table explains
+
+### #9: Summary of Results
+
+### #10: Finalized Model Predictions with Confidence Intervals and Underlying Scatterplot Data
+
+Visualizing the results
+
+```{r}
+predictions <- ggpredict(modeltrout, terms = "length") 
+#uses ggpredict to establish model predictions
+#assigns to term "predictions"
+
+predictions
+```
+
+```{r}
+plot_predictions <- ggplot(data = trout_perch_data, #plot the data and predictions.
+                           aes(x = length, y = weight)) + #x axis represents fish length, y axis repesents fish weight
+ 
+  
+   #plot the data as a scatterplot
+  geom_point() +
+ 
+   # plot predictions as a line
+  geom_line(data = predictions, 
+            aes(x = x, y = predicted), #establishes x axis as x, and y axis as predicted.
+            color = "red", linewidth = 1) + #assigns the color red to the prediction line
+  
+  
+  #plot the 95% confidence interval from ggpredict
+  geom_ribbon(data = predictions, 
+              aes(x = x, y = predicted, ymin = conf.low, ymax = conf.high), 
+              alpha = 0.2) +
+  
+  
+  # theme and clearer labels
+  theme_bw() +
+  labs(x = "Trout Perch Length",
+       y = "Trout Perch Weight")
+
+plot_predictions
+```
+
+The above figure displays the observed Trout Perch weight and length observations (black dots) in a scatter plot, as well as the predicted values (red line) and the 95% confidence interval (light grey). The majority of the observed data seems to align near the predicted values. The narrow confidence intervals also indicate that the prediction model does indeed fit the data well. See answer to "#9: Summary of Results" for more in depth explanation and contextualization of this visualization and its results.
