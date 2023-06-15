@@ -1,0 +1,57 @@
+---
+title: "Homework 4 Final Draft"
+format: html
+editor: visual
+---
+
+## Set Up
+
+```{r}
+#install packages
+install.packages("lterdatasampler")
+
+# should haves
+library(tidyverse)
+library(here)
+library(lterdatasampler)
+
+# would be nice to have
+library(performance)
+library(broom)
+library(flextable)
+library(ggeffects)
+library(car)
+```
+
+# Problem: How does fish length predict fish weight for trout perch (across all sample years)?
+
+### #1: Null and Alternative Hypotheses
+
+Null Hypothesis: There is no significant relationship between fish length and fish weight in the trout perch samples.
+
+Alternative Hypothesis: There is relationship between fish length and fish weight in the trout perch samples, meaning that fish weight can reasonably be predicted using the fish length.
+
+### #2: Visualization of Missing Data
+
+Read in data and filter so that only Trout Perch data are included. Then, visualize the missing data using the naniar package.
+
+```{r}
+data <- read.csv("data/knb-lter-ntl.6.34/ntl6_v12.csv") #read in data
+
+trout_perch_data <- data %>% #Create new item for the fitered data including only Trout Perch observations
+  filter(spname == "TROUTPERCH")  #Filter so that only observations with species name "Trout Perch" are included
+
+library(naniar) 
+vis_miss(trout_perch_data) #Visualize missing data in the filtered data set
+
+```
+
+The missing data is very relevant to the hypotheses, because we are evaluating the extent to which fish length can be predicted to fish weight, and the weight variable is missing 41% of its data.
+
+### #3: Visualizing Data and Establishing Potential for Relationship
+
+Make a scatter plot for reference:
+
+```{r}
+
+```
